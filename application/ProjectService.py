@@ -33,3 +33,27 @@ class ProjectInitializationService:
             project.initialize_with_questionnaire(questionnaire_content)
         
         return project
+
+
+if __name__ == "__main__":
+    # Sample user response for initializing the project
+    user_response = {
+        "project_name": "New AI Project",
+        "questionnaire": {
+            "purpose": "Build an AI-powered chatbot",
+            "features": ["Natural Language Processing", "Integration with CRM"],
+            "deadline": "2024-12-31"
+        }
+    }
+
+    # Initialize the service with the user response
+    service = ProjectInitializationService(user_response=user_response)
+
+    # Call the initialize_project method and print the result
+    try:
+        project = service.initialize_project()
+        print(f"Project initialized successfully:\nName: {project.name}")
+        if hasattr(project, 'get_questionnaire_content'):
+            print(f"Questionnaire: {project.get_questionnaire_content()}")
+    except Exception as e:
+        print(f"Project initialization failed: {e}")

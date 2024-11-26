@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from domain.Entities.Artifact import Artifact
 from domain.Entities.Project import Project
-from infrastructure.http.rest import request_handler
+from infrastructure.http.request import ExternalServiceClient
 from domain.value_objects.artifact_type import ArtifactType
 
 class ArtifactGenerationService:
@@ -55,9 +55,37 @@ class ArtifactGenerationService:
         prompts = artifact.create_prompt(templates[0], context)
         
         # Send to LLM service
-        content = request_handler(self.llm_service, prompts)
+        request_handler = ExternalServiceClient(llm_service)
+        content = request_handler.request(prompts)
         
         # Update project content
         project.update_content(content, self.artifact_type)
         
         return True
+
+
+
+if __name__ == "__main__":
+    # Input parameters for the service
+    project_name = "Test Project"
+    artifact_type = ArtifactType("Documentation")  # Replace with a valid artifact type if needed
+    llm_service = "https://example-llm-service.com/api"
+    additional_context = {
+        "key1": "value1",
+        "key2": "value2",
+    }
+
+    # Instantiate the ArtifactGenerationService
+    service = ArtifactGenerationService(
+        project_name=project_name,
+        artifact_type=artifact_type,
+        llm_service=llm_service,
+        additional_context=additional_context
+    )
+
+    # Call the generate_artifact method and print the result
+    try:
+        result = service.generate_artifact()
+        print(f"Artifact generation success: {result}")
+    except Exception as e:
+        print(f"Artifact generation failed: {e}")
