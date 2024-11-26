@@ -1,6 +1,10 @@
-# project store 
+from dataclasses import dataclass
+import uuid
+from typing import Dict, Optional, List
+from infrastructure.repositories.json_repository import JSONRepository
+from infrastructure.repositories.stores import create_content_store
+from domain.value_objects.artifact_type import ArtifactType
 
-# domain/project.py
 @dataclass
 class Project:
     id: str
@@ -17,16 +21,26 @@ class Project:
     def initialize_with_questionnaire(self, questionnaire_content: Dict) -> None:
         """
         Initializes project with questionnaire content.
-
+        
         Args:
             questionnaire_content: The completed questionnaire
         """
         # Store questionnaire content as a single-item list
-        self.content_store.update(
-            ArtifactType.QUESTIONNAIRE, 
-            [questionnaire_content]
-        )
+        result = self.content_store.save({
+            'id': ArtifactType.QUESTIONNAIRE.value,
+            'type': ArtifactType.QUESTIONNAIRE.value,
+            'content': [questionnaire_content]
+        })
 
-    # get context 
-
-    
+    def get_content(self, artifact_type: ArtifactType) -> Optional[List[Dict]]:
+        """
+        Get content for a specific artifact type.
+        
+        Args:
+            artifact_type (ArtifactType): Type of artifact to retrieve
+        
+        Returns:
+            Optional list of content for the specified artifact type
+        """
+        result = self.content_store.load(artifact_type.value)
+        return result['content'] if result else None
